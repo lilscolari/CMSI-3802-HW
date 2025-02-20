@@ -61,11 +61,21 @@ const grammars = {
     pa11 = "a" | "b" | "c"
   `,
 
-  // pythonStringLiterals: String.raw`
-  //   literal = prefix? (long | short)
-  //   prefix = "r" | "u" | "R" | "U" |"f" | "F" | fr" | "Fr" | "rf" | "rF" | "Rf" | RF"
-  //   short = "'" shortitem_s* "'" | 
-  // `,
+  pythonStringLiterals: String.raw`
+    literal = prefix? (docstring | short)
+    prefix = "r" | "R" | "u" | "U" |"f" | "F" | "fr" | "Fr" | "FR" | "fR" | "rf" | "Rf" | "RF" | "rF"
+    short = "'" shortitem_1* "'" | "\"" shortitem_2* "\""
+    shortitem_1 = shortchar_1 | escape
+    shortitem_2 = shortchar_2 | escape
+    shortchar_1 = ~"\n" ~"\\" ~"'" any
+    shortchar_2 = ~"\n" ~"\\" ~"\"" any
+    docstring = "'''" docstringitem_1* "'''" | "\"\"\"" docstringitem_2* "\"\"\""
+    docstringitem_1 = docstringchar_1 | escape
+    docstringitem_2 = docstringchar_2 | escape
+    docstringchar_1 = ~"\\" ~"'''" any
+    docstringchar_2 = ~"\\" ~"\"\"\"" any
+    escape = "\\" any
+  `,
 }
 
 function matches(name, string) {
@@ -176,38 +186,38 @@ const testFixture = {
     ],
     bad: ["", "a", "ab", "abc", "abbbb", "cbcbcbcb"],
   },
-  // pythonStringLiterals: {
-  //   good: String.raw`''
-  //     ""
-  //     'hello'
-  //     "world"
-  //     'a\'b'
-  //     "a\"b"
-  //     '\n'
-  //     "a\tb"
-  //     f'\u'
-  //     """abc"""
-  //     '''a''"''"'''
-  //     """abc\xdef"""
-  //     '''abc\$def'''
-  //     '''abc\''''`
-  //     .split("\n")
-  //     .map((s) => s.trim()),
-  //   bad: String.raw`
-  //     'hello"
-  //     "world'
-  //     'a'b'
-  //     "a"b"
-  //     'a''
-  //     "x""
-  //     """"""""
-  //     frr"abc"
-  //     'a\'
-  //     '''abc''''
-  //     """`
-  //     .split("\n")
-  //     .map((s) => s.trim()),
-  // },
+  pythonStringLiterals: {
+    good: String.raw`''
+      ""
+      'hello'
+      "world"
+      'a\'b'
+      "a\"b"
+      '\n'
+      "a\tb"
+      f'\u'
+      """abc"""
+      '''a''"''"'''
+      """abc\xdef"""
+      '''abc\$def'''
+      '''abc\''''`
+      .split("\n")
+      .map((s) => s.trim()),
+    bad: String.raw`
+      'hello"
+      "world'
+      'a'b'
+      "a"b"
+      'a''
+      "x""
+      """"""""
+      frr"abc"
+      'a\'
+      '''abc''''
+      """`
+      .split("\n")
+      .map((s) => s.trim()),
+  },
 }
 
 for (let name of Object.keys(testFixture)) {
