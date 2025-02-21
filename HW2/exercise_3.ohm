@@ -1,0 +1,40 @@
+Mystery {
+	Program = FunctionDec* Exp
+    Exp = Exp1 if Exp1 else Exp --conditional
+    | Exp1
+    Exp1 = Exp1 ("+" | "-") Exp2 --additive
+    | Exp2
+    Exp2 = Exp2 ("*" | "/") Exp3 --multiplicative
+    | Exp3
+    Exp3 = "-" Exp4 --negation
+    | Exp4
+    Exp4 = Exp5 "!" --factorial
+    | Exp5
+    Exp5 = num
+    | str
+    | id
+    | Call
+    | "(" Exp ")" --parens
+    Call = id Arguments
+    Arguments = "[" ListOf<Exp, ","> "]"
+    FunctionDec = func id Params Body
+    Params = "(" ListOf<id, ","> ")"
+    Body = NonemptyListOf<Exp, ";"> endkeyword
+    func = "func" ~idchar
+    if = "if" ~idchar
+    else = "else" ~idchar
+    endkeyword = "end" ~idchar
+    keyword = func | if | else | endkeyword
+    id = ~keyword (letter | "@") idchar*
+    idchar = letter | digit | "_" | "@" | "$"
+    num = digit+ ("." digit+)? (("e" | "E") ("+" | "-")? digit+)?
+    str = "\"" char* "\""
+    char = ~("\"" | "\\") any
+    | "\\" escape --escape
+    escape = "'" | "\"" | "\\" | "n" 
+    | "u{" hexes "}" --codepoint
+    hexes = h h? h? h? h? h?
+    h = hexDigit
+    space += "--" (~"\n" any)* --comment
+    
+}
